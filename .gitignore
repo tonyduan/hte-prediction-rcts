@@ -1,0 +1,10 @@
+*.ipynb_checkpoints
+*.idea
+*.Rhistory
+*.Rdata
+*.png
+*.pdf
+*.pyc
+*.npy
+*.pkl
+*.model
