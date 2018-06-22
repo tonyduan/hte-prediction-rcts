@@ -132,16 +132,16 @@ def run_for_x_learner(dataset, args, bootstrap_id=None):
   train_data, val_data = cut_dataset_at_cens_time(dataset, args.cens_time)
 
   model = RFXLearner()
-  model.train(train_data["X"], train_data["w"], train_data["y"])
+  model.train(train_data["X"], train_data["w"], train_data["y"], train_data["ipcw"])
 
   if args.validate_on:
     dataset = load_data(args.validate_on)
     train_data, val_data = cut_dataset_at_cens_time(dataset, args.cens_time)
-    pred_rr_val = model.predict(val_data["X"], val_data["w"], True, False)
-    pred_rr_train = model.predict(train_data["X"], train_data["w"], True, False)
+    pred_rr_val = model.predict(val_data["X"], val_data["w"], val_data["ipcw"], True, False)
+    pred_rr_train = model.predict(train_data["X"], train_data["w"], train_data["ipcw"], True, False)
   else:
-    pred_rr_val = model.predict(val_data["X"], val_data["w"], True, True)
-    pred_rr_train = model.predict(train_data["X"], train_data["w"], True, True)
+    pred_rr_val = model.predict(val_data["X"], val_data["w"], val_data["ipcw"], True, True)
+    pred_rr_train = model.predict(train_data["X"], train_data["w"], train_data["ipcw"], True, True)
 
   rss, tpval, slope, intercept, pred_rr_binned, obs_rr_binned = calibration(
     pred_rr_val, val_data["y"], val_data["w"], val_data["t"], args.cens_time)
@@ -315,6 +315,8 @@ def run_for_dataset(dataset_name, args, bootstrap_id=None):
     dataset = combine_datasets(sprint, accord)
   else:
     dataset = load_data(dataset_name)
+    
+  dataset["ipcw"] = calculate_ipcw(dataset, args.cens_time)
 
   if args.scale:
     dataset["X"] = scale(dataset["X"], axis=0)
@@ -354,6 +356,7 @@ if __name__ == "__main__":
   parser.add_argument("--bootstrap", action="store_true")
   parser.add_argument("--scale", action="store_true")
   parser.add_argument("--cens-time", type=float, default=365.25 * 3)
+  parser.add_argument("--bootstrap-runs", type=int, default=20)
   args = parser.parse_args()
 
   print("=" * 79)
@@ -371,12 +374,12 @@ if __name__ == "__main__":
       experiment_type = args.model
 
     print("Running bootstrap samples...")
-    for i in tqdm(range(1, 250 + 1)):
+    for i in tqdm(range(1, args.bootstrap_runs + 1)):
       run_for_dataset(args.dataset, args, i)
 
     print("Evaluating empirical confidence intervals...")
     c_stats, rmsts, slopes, intercepts = [], [], [], []
-    for i in tqdm(range(1, 250 + 1)):
+    for i in tqdm(range(1, args.bootstrap_runs + 1)):
       base_dir = "results/{}/{}/{}".format(experiment_type, args.dataset, i)
       c_stats.append(np.load(base_dir + "/c_stat.npy").item())
       rmsts.append(np.load(base_dir + "/rmst.npy").item())
@@ -385,7 +388,7 @@ if __name__ == "__main__":
 
     if args.model == "coxph" and args.validate_on == "":
       c_stat_optimisms, rmst_optimisms = [], []
-      for i in tqdm(range(1, 250 + 1)):
+      for i in tqdm(range(1, args.bootstrap_runs + 1)):
         base_dir = "results/{}/{}/{}".format(experiment_type, args.dataset, i)
         c_stat_optimisms.append(np.load(base_dir + "/c_stat_optimism.npy"))
         rmst_optimisms.append(np.load(base_dir + "/rmst_optimism.npy"))

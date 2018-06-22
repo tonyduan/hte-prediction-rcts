@@ -26,7 +26,7 @@ def _as_df(X):
   data = {"x" + str(i): X[:, i] for i in range(X.shape[1])}
   return pd.DataFrame(data)
 
-def _setup_r_environment(X, w=None, y=None, t=None):
+def _setup_r_environment(X, w=None, y=None, t=None, ipcw=None):
   ro.globalenv["X"] = _as_df(X)
   if w is not None:
     ro.globalenv["w"] = ro.FloatVector(w)
@@ -34,7 +34,8 @@ def _setup_r_environment(X, w=None, y=None, t=None):
     ro.globalenv["y"] = ro.FloatVector(y)
   if t is not None:
     ro.globalenv["t"] = ro.FloatVector(t)
-
+  if ipcw is not None:
+    ro.globalenv["ipcw"] = ro.FloatVector(ipcw)
 
 class RFXLearner(object):
 
@@ -42,16 +43,16 @@ class RFXLearner(object):
     ro.r("rm(list=ls())")
     r.source("lib/xlearner.R")
 
-  def train(self, X, w, y):
-    _setup_r_environment(X, w, y)
-    ro.r("models = train_x_learner(X, w, y)")
+  def train(self, X, w, y, ipcw):
+    _setup_r_environment(X, w, y, ipcw=ipcw)
+    ro.r("models = train_x_learner(X, w, y, ipcw)")
 
-  def predict(self, X, w, estimate_propensities=True, oob_predictions=True):
-    _setup_r_environment(X, w)
+  def predict(self, X, w, ipcw, estimate_propensities=True, oob_predictions=True):
+    _setup_r_environment(X, w, ipcw=ipcw)
     ro.globalenv["est_prop"] = estimate_propensities
     ro.globalenv["oob_pred"] = oob_predictions
     ro.r("attach(models)")
-    self.pred_rr = ro.r("predict_x_learner(X, w, est_prop, oob_pred)")
+    self.pred_rr = ro.r("predict_x_learner(X, w, ipcw, est_prop, oob_pred)")
     ro.r("detach(models)")
     return -self.pred_rr
 
