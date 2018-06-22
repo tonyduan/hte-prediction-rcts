@@ -137,11 +137,11 @@ def run_for_x_learner(dataset, args, bootstrap_id=None):
   if args.validate_on:
     dataset = load_data(args.validate_on)
     train_data, val_data = cut_dataset_at_cens_time(dataset, args.cens_time)
-    pred_rr_val = model.predict(val_data["X"], val_data["w"], val_data["ipcw"], True, False)
-    pred_rr_train = model.predict(train_data["X"], train_data["w"], train_data["ipcw"], True, False)
+    pred_rr_val = model.predict(val_data["X"], val_data["w"], True, False)
+    pred_rr_train = model.predict(train_data["X"], train_data["w"], True, False)
   else:
     pred_rr_val = model.predict(val_data["X"], val_data["w"], val_data["ipcw"], True, True)
-    pred_rr_train = model.predict(train_data["X"], train_data["w"], train_data["ipcw"], True, True)
+    pred_rr_train = model.predict(train_data["X"], train_data["w"], True, True)
 
   rss, tpval, slope, intercept, pred_rr_binned, obs_rr_binned = calibration(
     pred_rr_val, val_data["y"], val_data["w"], val_data["t"], args.cens_time)
@@ -204,7 +204,8 @@ def run_for_cox(dataset, args, bootstrap_id):
     bootstrap_bin_data, bootstrap_all_data = cut_dataset_at_cens_time(bootstrapped_dataset, args.cens_time)
 
     model.train(bootstrap_all_data["X"], bootstrap_all_data["w"],
-                bootstrap_all_data["y"], bootstrap_all_data["t"])
+                bootstrap_all_data["y"], bootstrap_all_data["t"],
+                bootstrap_all_data["ipcw"])
 
     pred_rr_bootstrap_all = model.predict(cens_time=args.cens_time, newdata=bootstrap_all_data["X"])
     pred_rr_bootstrap_bin = model.predict(cens_time=args.cens_time, newdata=bootstrap_bin_data["X"])
@@ -238,7 +239,7 @@ def run_for_cox(dataset, args, bootstrap_id):
 
     bin_data, all_data = cut_dataset_at_cens_time(dataset, args.cens_time)
 
-    model.train(all_data["X"], all_data["w"], all_data["y"], all_data["t"])
+    model.train(all_data["X"], all_data["w"], all_data["y"], all_data["t"], all_data["ipcw"])
     if args.validate_on:
       dataset = load_data(args.validate_on)
       bin_data, all_data = cut_dataset_at_cens_time(dataset, args.cens_time)
@@ -265,7 +266,7 @@ def run_for_cox(dataset, args, bootstrap_id):
 
       # extract baseline risk to compare
       baseline_model = CoxAICBaseline()
-      baseline_model.train(all_data["X"], all_data["y"], all_data["t"])
+      baseline_model.train(all_data["X"], all_data["y"], all_data["t"], all_data["ipcw"])
       baseline_risk = baseline_model.predict(args.cens_time, all_data["X"])
 
       # extract HTE coefficients

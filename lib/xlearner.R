@@ -70,7 +70,7 @@ train_x_learner = function(X, W, Y, ipcw) {
   return(list(xf0 = xf0, xf1 = xf1, mapping0 = mapping0, mapping1 = mapping1))
 }
 
-predict_x_learner = function(X, W, ipcw, estimate_propensities, predict_oob) {
+predict_x_learner = function(X, W, estimate_propensities, predict_oob) {
 
   if (predict_oob) {
     preds_1 = get_oob_predictions(X, xf1, mapping1)

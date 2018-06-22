@@ -47,12 +47,12 @@ class RFXLearner(object):
     _setup_r_environment(X, w, y, ipcw=ipcw)
     ro.r("models = train_x_learner(X, w, y, ipcw)")
 
-  def predict(self, X, w, ipcw, estimate_propensities=True, oob_predictions=True):
-    _setup_r_environment(X, w, ipcw=ipcw)
+  def predict(self, X, w, estimate_propensities=True, oob_predictions=True):
+    _setup_r_environment(X, w)
     ro.globalenv["est_prop"] = estimate_propensities
     ro.globalenv["oob_pred"] = oob_predictions
     ro.r("attach(models)")
-    self.pred_rr = ro.r("predict_x_learner(X, w, ipcw, est_prop, oob_pred)")
+    self.pred_rr = ro.r("predict_x_learner(X, w, est_prop, oob_pred)")
     ro.r("detach(models)")
     return -self.pred_rr
 
@@ -63,11 +63,11 @@ class CoxAIC(object):
     self.mass_lib = importr("MASS")
     self.survival_lib = importr("survival")
 
-  def train(self, X, w, y, t):
+  def train(self, X, w, y, t, ipcw):
     X = _get_interaction_terms(X, w)
     X = _add_treatment_feature(X, w)
-    _setup_r_environment(X, w, y, t)
-    model = ro.r("coxph(data=X, Surv(t, y) ~ .)")
+    _setup_r_environment(X, w, y, t, ipcw)
+    model = ro.r("coxph(data = X, Surv(t, y) ~ ., weights = ipcw)")
     self.clf = self.mass_lib.stepAIC(model, direction="backward", trace=False)
 
   def predict(self, cens_time, newdata):
