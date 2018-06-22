@@ -94,7 +94,9 @@ def cut_dataset_at_cens_time(dataset, cens_time):
   idxs = ~((train["y"] == 0) & (train["t"] < cens_time))
   train["y"][(train["y"] == 1) & (train["t"] > cens_time)] = 0
   train["t"][(train["y"] == 1) & (train["t"] > cens_time)] = cens_time
-  ipcw = calculate_ipcw(train)
+  ipcw = calculate_ipcw(train, cens_time)
+  import pdb
+  pdb.set_trace()
   train_data = {
     "X": train["X"][idxs],
     "y": train["y"][idxs],
