@@ -63,11 +63,11 @@ class CoxAIC(object):
     self.mass_lib = importr("MASS")
     self.survival_lib = importr("survival")
 
-  def train(self, X, w, y, t, ipcw):
+  def train(self, X, w, y, t):
     X = _get_interaction_terms(X, w)
     X = _add_treatment_feature(X, w)
     _setup_r_environment(X, w, y, t, ipcw)
-    model = ro.r("coxph(data = X, Surv(t, y) ~ ., weights = ipcw)")
+    model = ro.r("coxph(data = X, Surv(t, y) ~ .)")
     self.clf = self.mass_lib.stepAIC(model, direction="backward", trace=False)
 
   def predict(self, cens_time, newdata):

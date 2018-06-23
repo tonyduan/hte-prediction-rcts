@@ -82,7 +82,7 @@ predict_x_learner = function(X, W, estimate_propensities, predict_oob) {
 
   if (estimate_propensities) {
     propf = ranger(W ~ ., data = data.frame(X, W = W), 
-                   min.node.size = 1, case.weights = ipcw)
+                   min.node.size = 1)
     ehat = propf$predictions
     preds = (1 - ehat) * preds_1 + ehat * preds_0
   } else {

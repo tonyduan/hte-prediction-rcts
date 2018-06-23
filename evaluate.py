@@ -280,8 +280,6 @@ def calibration(preds, y, w, t, cens_time, n_bins=5):
   for i in range(n_bins):
     with_rx = np.logical_and(quantiles == i, w == 1)
     no_rx = np.logical_and(quantiles == i, w == 0)
-    import pdb
-    pdb.set_trace()
     kmf_with_rx = KaplanMeierFitter().fit(t[with_rx], y[with_rx])
     kmf_no_rx = KaplanMeierFitter().fit(t[no_rx], y[no_rx])
     surv = kmf_with_rx.survival_function_.reset_index()

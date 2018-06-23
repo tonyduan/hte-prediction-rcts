@@ -79,7 +79,6 @@ def bootstrap_dataset(dataset):
     "y": dataset["y"][idxs],
     "w": dataset["w"][idxs],
     "t": dataset["t"][idxs],
-    "ipcw": dataset["ipcw"][idxs]
   }
 
 def cut_dataset_at_cens_time(dataset, cens_time):
@@ -94,13 +93,12 @@ def cut_dataset_at_cens_time(dataset, cens_time):
   idxs = ~((train["y"] == 0) & (train["t"] < cens_time))
   train["y"][(train["y"] == 1) & (train["t"] > cens_time)] = 0
   train["t"][(train["y"] == 1) & (train["t"] > cens_time)] = cens_time
-  ipcw = calculate_ipcw(train, cens_time)
   train_data = {
     "X": train["X"][idxs],
     "y": train["y"][idxs],
     "t": train["t"][idxs],
-    "w": train["w"][idxs],
-    "ipcw": ipcw}
+    "w": train["w"][idxs]}
+  train_data["ipcw"] = calculate_ipcw(train_data, cens_time)
   val_data = {
     "X": np.r_[dataset["X"][idxs], dataset["X"][~idxs]],
     "y": np.r_[dataset["y"][idxs], dataset["y"][~idxs]],
