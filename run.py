@@ -354,7 +354,7 @@ if __name__ == "__main__":
   parser.add_argument("--bootstrap", action="store_true")
   parser.add_argument("--scale", action="store_true")
   parser.add_argument("--cens-time", type=float, default=365.25 * 3)
-  parser.add_argument("--bootstrap-runs", type=int, default=20)
+  parser.add_argument("--bootstrap-runs", type=int, default=250)
   args = parser.parse_args()
 
   print("=" * 79)
