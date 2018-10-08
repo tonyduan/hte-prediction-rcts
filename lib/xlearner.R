@@ -49,21 +49,21 @@ get_oob_predictions = function(X, forest, mapping) {
 
 train_x_learner = function(X, W, Y, ipcw) {
 
-  tf0 = ranger(Y ~ ., data = data.frame(X[W == 0,], Y = Y[W == 0]), 
-               num.trees = 1000, min.node.size = 1, 
+  tf0 = ranger(Y ~ ., data = data.frame(X[W == 0,], Y = Y[W == 0]),
+               num.trees = 500, min.node.size = 1,
                case.weights = ipcw[W == 0])
   yhat0 = predict(tf0, X[W == 1,])$predictions
   xf1 = ranger(Y ~ ., data = data.frame(Y = Y[W == 1] - yhat0, X[W == 1,]),
-               keep.inbag = TRUE, num.trees = 2000, min.node.size = 1,
+               keep.inbag = TRUE, num.trees = 500, min.node.size = 1,
                case.weights = ipcw[W == 1])
   mapping1 = get_mapping_to_full_dataset(X, W, 1)
 
   tf1 = ranger(Y ~ ., data = data.frame(X[W == 1,], Y = Y[W == 1]),
-               num.trees = 1000, min.node.size = 1,
+               num.trees = 500, min.node.size = 1,
                case.weights = ipcw[W == 1])
   yhat1 = predict(tf1, X[W == 0,])$predictions
   xf0 = ranger(Y ~ ., data= data.frame(Y = yhat1 - Y[W == 0], X[W == 0,]),
-               keep.inbag = TRUE, num.trees = 2000, min.node.size = 1,
+               keep.inbag = TRUE, num.trees = 500, min.node.size = 1,
                case.weights = ipcw[W == 0])
   mapping0 = get_mapping_to_full_dataset(X, W, 0)
 
@@ -81,7 +81,7 @@ predict_x_learner = function(X, W, estimate_propensities, predict_oob) {
   }
 
   if (estimate_propensities) {
-    propf = ranger(W ~ ., data = data.frame(X, W = W), 
+    propf = ranger(W ~ ., data = data.frame(X, W = W),
                    min.node.size = 1)
     ehat = propf$predictions
     preds = (1 - ehat) * preds_1 + ehat * preds_0
@@ -91,17 +91,3 @@ predict_x_learner = function(X, W, estimate_propensities, predict_oob) {
 
   return(preds)
 }
-
-# train_cens_propensity_model = function(X_censored, T_censored) {
-#   Y_censored = array(1, length(T_censored))
-#   cox_fit = coxph(Surv(T_censored, Y_censored) ~ ., data = X_censored)
-#   return(list(cox_fit = cox_fit))
-# }
-#
-# predict_cens_propensity_model = function(X) {
-#   surv_fit = survfit(cox_fit, newdata = X)
-#   idx = findInterval(3 * 365.25, surv_fit$time, all.inside = TRUE)
-#   propensities = 1 - surv_fit$surv[idx,]
-#   return(propensities)
-# }
-#

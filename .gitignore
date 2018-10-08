@@ -5,6 +5,7 @@
 *.png
 *.pdf
 *.pyc
+*.csv
 *.npy
 *.pkl
 *.model
