@@ -57,20 +57,20 @@ def bucket_arr(pred_rr, y, w):
     return arr_ben, arr_noben
 
 
-def decision_value_rmst(pred_rr, y, w, t, cens_time):
+def decision_value_rmst(pred_rr, y, w, t, cens_time, min_km_samples=50):
     """
     Return the decision value RMST.
     """
     treat = np.logical_and(pred_rr > 0, w == 1)
     control = np.logical_and(pred_rr <= 0, w == 0)
-    if np.sum(control) == 0:
+    if np.sum(control) < min_km_samples:
         kmf_treat = KaplanMeierFitter()
         kmf_treat.fit(t[treat], y[treat])
         surv = kmf_treat.survival_function_.reset_index()
         idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
         rmst_1 = np.trapz(y=surv["KM_estimate"][:idx], x=surv["timeline"][:idx])
         return rmst_1
-    if np.sum(treat) == 0:
+    if np.sum(treat) < min_km_samples:
         kmf_control = KaplanMeierFitter()
         kmf_control.fit(t[control], y[control])
         surv = kmf_control.survival_function_.reset_index()
@@ -197,6 +197,7 @@ if __name__ == "__main__":
     dataset_all = {"X": X, "w": w, "y": y, "t": t}
     dataset_cut = {"X": X[cens == 0], "w": w[cens == 0], "y": y_cut[cens == 0]}
 
+    # metrics for the dataset, evaluated as dichotomous outcome
     for _ in tqdm(range(args.bootstrap_samples)):
 
         idxs = bootstrap_dataset(dataset_cut)
@@ -209,6 +210,7 @@ if __name__ == "__main__":
                                            y_cut[cens == 0][idxs],
                                            w[cens == 0][idxs]))
 
+    # metrics for the dataset, evaluated on the entire sample
     for _ in tqdm(range(args.bootstrap_samples)):
 
         idxs = bootstrap_dataset(dataset_all)
@@ -229,7 +231,7 @@ if __name__ == "__main__":
     buckets = np.zeros_like(pred_rr[cens == 0])
     buckets[pred_rr[cens == 0] > 0] = BENEFIT_ASSIGNMENT
     buckets[pred_rr[cens == 0] <= 0] = NO_BENEFIT_ASSIGNMENT
-    pvals = wald_test(buckets, y[cens == 0], w[cens == 0])
+    pvals = wald_test(buckets, y_cut[cens == 0], w[cens == 0])
 
     np.save(f"{base_dir}/arrs.npy", {BENEFIT_ASSIGNMENT: stats["arr_ben"],
                                      NO_BENEFIT_ASSIGNMENT: stats["arr_noben"]})

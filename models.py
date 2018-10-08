@@ -58,6 +58,29 @@ class RFXLearner(object):
         return -self.pred_rr
 
 
+class LogisticRegression(object):
+    def __init__(self):
+        self.glmnet_lib = importr("glmnet")
+
+    def train(self, X, w, y, ipcw):
+        X = _get_interaction_terms(X, w)
+        X = _add_treatment_feature(X, w)
+        _setup_r_environment(X, y=y, ipcw=ipcw)
+        ro.r("model = cv.glmnet(as.matrix(X), y, weights = ipcw, " +
+             "family = 'binomial', alpha=0.0)")
+
+    def predict(self, X):
+        X_1 = _get_interaction_terms(X, np.ones(len(X)))
+        X_1 = _add_treatment_feature(X_1, np.ones(len(X)))
+        _setup_r_environment(X_1)
+        py1 = np.exp(ro.r("predict(model, newx = as.matrix(X))")[:,0])
+        X_0 = _get_interaction_terms(X, np.zeros(len(X)))
+        X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
+        _setup_r_environment(X_0)
+        py0 = np.exp(ro.r("predict(model, newx = as.matrix(X))")[:,0])
+        return py0 - py1
+
+
 class CoxAIC(object):
     def __init__(self):
         self.mass_lib = importr("MASS")
