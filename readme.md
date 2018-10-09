@@ -34,6 +34,8 @@ python3 evaluate.py --model cox --dataset combined
 python3 optimism.py --model cox --dataset combined
 ```
 
+Code to reproduce plots can be found in our notebook `plots.ipynb`.
+
 ### References
 
 [1] Künzel, Sören R., Jasjeet S. Sekhon, Peter J. Bickel, and Bin Yu. “Meta-Learners for Estimating Heterogeneous Treatment Effects Using Machine Learning.” ArXiv:1706.03461 [Math, Stat], June 12, 2017. http://arxiv.org/abs/1706.03461.
