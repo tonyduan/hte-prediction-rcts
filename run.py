@@ -71,8 +71,6 @@ if __name__ == "__main__":
     parser.add_argument("--model", type=str, default="xlearner")
     parser.add_argument("--dataset", type=str, default="combined")
     parser.add_argument("--validate-on", type=str, default="")
-    parser.add_argument("--bootstrap", action="store_true")
-    parser.add_argument("--scale", action="store_true")
     parser.add_argument("--cens-time", type=float, default=365.25 * 3)
     args = parser.parse_args()
 

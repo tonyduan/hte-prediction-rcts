@@ -96,7 +96,7 @@ class LogisticRegression(object):
         X_0 = _get_interaction_terms(X, np.zeros(len(X)))
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
-        py0 = ro.r("predict(model, newx = as.matrix(X), type='response)")[:,0]
+        py0 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
         return py0 - py1
 
 
