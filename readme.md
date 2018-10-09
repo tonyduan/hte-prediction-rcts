@@ -4,13 +4,13 @@ Last update: October 2018.
 
 ---
 
-### X-learner with random forests
+#### X-learner with random forests
 
 R code for the X-learner [1] with random forest base learners can be found in
 `lib/xlearner-rf.R`. By default, it makes out-of-bag predictions, though 
 this can be modified by changing the `predict_oob` flag. 
 
-### Evaluation
+#### Evaluation
 
 Our evaluation code lies in `evaluate.py`, with Python implementations of:
 
@@ -21,7 +21,7 @@ Our evaluation code lies in `evaluate.py`, with Python implementations of:
 For all statistics, we calculate bootstrap confidence intervals through 
 stratified resampling of the dataset.
 
-### Replication 
+#### Replication 
 
 In order to replicate results with the default 250 bootstrap samples, run:
 
@@ -39,7 +39,7 @@ python3 optimism.py --model cox --dataset combined
 
 Code to reproduce plots can be found in our notebook `plots.ipynb`.
 
-### References
+#### References
 
 [1] Künzel, Sören R., Jasjeet S. Sekhon, Peter J. Bickel, and Bin Yu. “Meta-Learners for Estimating Heterogeneous Treatment Effects Using Machine Learning.” ArXiv:1706.03461 [Math, Stat], June 12, 2017. http://arxiv.org/abs/1706.03461.
 
