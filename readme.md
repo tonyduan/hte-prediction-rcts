@@ -1,6 +1,6 @@
 ### Predicting Individual Patient Treatment Effects from Randomized Trial Data
 
---
+---
 
 R code for the X-learner with random forest base learners can be found in
 `lib/xlearner-rf.R`. By default, it makes out-of-bag predictions.
