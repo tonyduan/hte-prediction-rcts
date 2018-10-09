@@ -1,5 +1,7 @@
 ### Predicting Individual Patient Treatment Effects from Randomized Trial Data
 
+Last update: October 2018.
+
 ---
 
 ### X-learner with random forests
