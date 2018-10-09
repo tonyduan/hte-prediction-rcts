@@ -18,6 +18,9 @@ Our evaluation code lies in `evaluate.py`, with Python implementations of:
 2. Decision value of restricted mean survival time (RMST) [3,4]
 3. Calibration curve for predicted versus observed absolute risk reduction
 
+For all statistics, we calculate bootstrap confidence intervals through 
+stratified resampling of the dataset.
+
 ### Replication 
 
 In order to replicate results with the default 250 bootstrap samples, run:
