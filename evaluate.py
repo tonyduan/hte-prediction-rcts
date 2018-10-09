@@ -210,6 +210,9 @@ if __name__ == "__main__":
                                            y_cut[cens == 0][idxs],
                                            w[cens == 0][idxs]))
 
+    for k, v in stats.items():
+        print(f"{k}: {[np.round(u, 2) for u in get_range(v)]}")
+
     # metrics for the dataset, evaluated on the entire sample
     for _ in tqdm(range(args.bootstrap_samples)):
 

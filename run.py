@@ -6,7 +6,8 @@ from __future__ import division, print_function
 import numpy as np
 from argparse import ArgumentParser
 from pathlib import Path
-from models import RFXLearner, CoxAIC, CausalForest, SurvRF, LogisticRegression
+from models import RFXLearner, CoxAIC, CausalForest, SurvRF, \
+                   LogisticRegression, LinearXLearner
 from dataloader import load_data, combine_datasets, cut_dataset_at_cens_time
 
 
@@ -43,6 +44,12 @@ def run_with_model(dataset, args):
         model.train(cut_data["X"], cut_data["w"], cut_data["y"],
                     cut_data["ipcw"])
         pred_rr = model.predict(all_data["X"])
+
+    elif args.model == "linearxlearner":
+        model = LinearXLearner()
+        model.train(cut_data["X"], cut_data["w"], cut_data["y"],
+                    cut_data["ipcw"])
+        pred_rr = model.predict(all_data["X"], all_data["w"], False)
 
     else:
         raise ValueError("Not a supported model.")

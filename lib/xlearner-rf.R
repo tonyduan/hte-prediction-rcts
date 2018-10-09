@@ -8,7 +8,6 @@
 # Contact: Tony Duan, tonyduan@cs.stanford.edu
 # ==
 library(ranger)
-library(survival)
 
 
 get_mapping_to_full_dataset = function(X, W, assignment) {

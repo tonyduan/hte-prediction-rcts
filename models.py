@@ -42,7 +42,7 @@ def _setup_r_environment(X, w=None, y=None, t=None, ipcw=None):
 class RFXLearner(object):
     def __init__(self):
         ro.r("rm(list=ls())")
-        r.source("lib/xlearner.R")
+        r.source("lib/xlearner-rf.R")
 
     def train(self, X, w, y, ipcw):
         _setup_r_environment(X, w, y, ipcw=ipcw)
@@ -54,6 +54,25 @@ class RFXLearner(object):
         ro.globalenv["oob_pred"] = oob_predictions
         ro.r("attach(models)")
         self.pred_rr = ro.r("predict_x_learner(X, w, est_prop, oob_pred)")
+        ro.r("detach(models)")
+        return -self.pred_rr
+
+
+class LinearXLearner(object):
+    def __init__(self):
+        ro.r("rm(list=ls())")
+        r.source("lib/xlearner-linear.R")
+
+    def train(self, X, w, y, ipcw):
+        _setup_r_environment(X, w, y, ipcw=ipcw)
+        breakpoint()
+        ro.r("models = train_x_learner(X, w, y, ipcw)")
+
+    def predict(self, X, w, estimate_propensities=True):
+        _setup_r_environment(X, w)
+        ro.globalenv["est_prop"] = estimate_propensities
+        ro.r("attach(models)")
+        self.pred_rr = ro.r("predict_x_learner(X, w, est_prop)")
         ro.r("detach(models)")
         return -self.pred_rr
 
@@ -73,11 +92,11 @@ class LogisticRegression(object):
         X_1 = _get_interaction_terms(X, np.ones(len(X)))
         X_1 = _add_treatment_feature(X_1, np.ones(len(X)))
         _setup_r_environment(X_1)
-        py1 = np.exp(ro.r("predict(model, newx = as.matrix(X))")[:,0])
+        py1 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
         X_0 = _get_interaction_terms(X, np.zeros(len(X)))
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
-        py0 = np.exp(ro.r("predict(model, newx = as.matrix(X))")[:,0])
+        py0 = ro.r("predict(model, newx = as.matrix(X), type='response)")[:,0]
         return py0 - py1
 
 
