@@ -37,7 +37,7 @@ python3 evaluate.py --model cox --dataset combined
 python3 optimism.py --model cox --dataset combined
 ```
 
-Code to reproduce plots can be found in our notebook `plots.ipynb`.
+Code to reproduce plots can be found in our notebook `plots.ipynb` and `interpret.R`.
 
 #### References
 
