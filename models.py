@@ -97,6 +97,8 @@ class LogisticRegression(object):
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
         py0 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
+        import pdb
+        pdb.set_trace()
         return py0 - py1
 
 
@@ -108,19 +110,20 @@ class LogisticRegressionAIC(object):
         X = _get_interaction_terms(X, w)
         X = _add_treatment_feature(X, w)
         _setup_r_environment(X, y=y, ipcw=ipcw)
-        model = ro.r("glm(data = X, y ~ .)")
+        model = ro.r("glm(data = X, y ~ ., weights=ipcw)")
         self.clf = self.mass_lib.stepAIC(model, direction="backward",
                                          trace=False)
+        ro.globalenv["model"] = self.clf
 
     def predict(self, X):
         X_1 = _get_interaction_terms(X, np.ones(len(X)))
         X_1 = _add_treatment_feature(X_1, np.ones(len(X)))
         _setup_r_environment(X_1)
-        py1 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
+        py1 = ro.r("predict(model, data = as.matrix(X), type='response')")
         X_0 = _get_interaction_terms(X, np.zeros(len(X)))
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
-        py0 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
+        py0 = ro.r("predict(model, data = as.matrix(X), type='response')")
         return py0 - py1
 
 

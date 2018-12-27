@@ -4,7 +4,7 @@ import numpy as np
 from argparse import ArgumentParser
 from pathlib import Path
 from models import RFXLearner, CoxAIC, CausalForest, SurvRF, \
-                   LogisticRegressionAIC, LinearXLearner
+                   LogisticRegression, LinearXLearner
 from dataloader import load_data, combine_datasets, cut_dataset_at_cens_time
 
 
@@ -37,7 +37,7 @@ def run_with_model(dataset, args):
                         model.predict(all_data["X"][all_data["cens"] == 1])]
 
     elif args.model == "logreg":
-        model = LogisticRegressionAIC()
+        model = LogisticRegression()
         model.train(cut_data["X"], cut_data["w"], cut_data["y"],
                     cut_data["ipcw"])
         pred_rr = model.predict(all_data["X"])
