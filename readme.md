@@ -1,6 +1,6 @@
 ### Predicting Individual Patient Treatment Effects from Randomized Trial Data
 
-Last update: October 2018.
+Last update: December 2018.
 
 ---
 
