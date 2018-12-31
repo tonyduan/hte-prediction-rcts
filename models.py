@@ -77,7 +77,7 @@ class LinearXLearner(object):
         return -self.pred_rr
 
 
-class LogisticRegression(object):
+class LogisticRegressionRidge(object):
     def __init__(self):
         self.glmnet_lib = importr("glmnet")
 
@@ -100,28 +100,26 @@ class LogisticRegression(object):
         return py0 - py1
 
 
-class LogisticRegressionAIC(object):
-    def __init__(self):
-        self.mass_lib = importr("MASS")
+class LogisticRegression(object):
+#    def __init__(self):
+#        self.mass_lib = importr("MASS")
 
     def train(self, X, w, y, ipcw):
         X = _get_interaction_terms(X, w)
         X = _add_treatment_feature(X, w)
         _setup_r_environment(X, y=y, ipcw=ipcw)
         model = ro.r("glm(data = X, y ~ ., weights=ipcw)")
-        self.clf = self.mass_lib.stepAIC(model, direction="backward",
-                                         trace=False)
-        ro.globalenv["model"] = self.clf
+        ro.globalenv["model"] = model
 
     def predict(self, X):
         X_1 = _get_interaction_terms(X, np.ones(len(X)))
         X_1 = _add_treatment_feature(X_1, np.ones(len(X)))
         _setup_r_environment(X_1)
-        py1 = ro.r("predict(model, data = as.matrix(X), type='response')")
+        py1 = ro.r("predict(model, newdata = X, type='response')")
         X_0 = _get_interaction_terms(X, np.zeros(len(X)))
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
-        py0 = ro.r("predict(model, data = as.matrix(X), type='response')")
+        py0 = ro.r("predict(model, newdata = X, type='response')")
         return py0 - py1
 
 

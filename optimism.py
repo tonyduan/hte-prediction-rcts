@@ -17,7 +17,6 @@ def run_for_optimism(original_dataset, bootstrap_dataset, args):
     cut_data_orig, all_data_orig = cut_dataset_at_cens_time(original_dataset,
                                                             args.cens_time)
 
-    breakpoint()
     if args.model == "cox":
         model = CoxAIC()
         model.train(all_data["X"], all_data["w"], all_data["y"], all_data["t"])
