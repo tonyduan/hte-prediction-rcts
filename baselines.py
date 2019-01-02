@@ -1,7 +1,7 @@
 from __future__ import division, print_function
 
 import numpy as np
-#from frs import frs
+from frs import frs
 from tqdm import tqdm
 from models import CoxAICBaseline
 from evaluate import decision_value_rmst, get_range
@@ -111,11 +111,11 @@ if __name__ == "__main__":
 
     if args.calc_baseline_risk:
         print("Calculating baseline risks...")
-        # frs = run_for_framingham(all_data)
-        # ascvd = run_for_ascvd(all_data)
+        frs = run_for_framingham(all_data)
+        ascvd = run_for_ascvd(all_data)
         coxph = run_for_cox(all_data, args.cens_time)
-        # np.save(f"{base_dir}/framingham.npy", frs)
-        # np.save(f"{base_dir}/ascvd.npy", ascvd)
+        np.save(f"{base_dir}/framingham.npy", frs)
+        np.save(f"{base_dir}/ascvd.npy", ascvd)
         np.save(f"{base_dir}/coxph.npy", coxph)
 
     if args.calc_naive_rmst:
