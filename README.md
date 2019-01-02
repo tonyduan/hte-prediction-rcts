@@ -1,6 +1,6 @@
 ### Predicting Individual Patient Treatment Effects from Randomized Trial Data
 
-Last update: December 2018.
+Last update: January 2019.
 
 ---
 
@@ -29,12 +29,12 @@ In order to replicate results with the default 250 bootstrap samples, run:
 python3 baselines.py --dataset combined
 
 python3 run.py --model xlearner --dataset combined
-python3 run.py --model cox --dataset combined
+python3 run.py --model logreg --dataset combined
 
 python3 evaluate.py --model xlearner --dataset combined
-python3 evaluate.py --model cox --dataset combined
+python3 evaluate.py --model logreg --dataset combined
 
-python3 optimism.py --model cox --dataset combined
+python3 optimism.py --model logreg --dataset combined
 ```
 
 Code to reproduce plots can be found in our notebook `plots.ipynb` and `interpret.R`.
