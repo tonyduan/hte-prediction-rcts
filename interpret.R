@@ -1,9 +1,13 @@
 library(tidyverse)
+library(gsubfn)
 library(ranger)
 library(pdp)
 
 source("lib/multiplot.R")
 
+# ---------------------------------------------------------------------------- 
+#   Interpretation of X-learner with Random Forests
+# ----------------------------------------------------------------------------
 
 xf0 = readRDS("./models/xf0.rds")
 xf1 = readRDS("./models/xf1.rds")
@@ -56,4 +60,49 @@ for (i in 0:(length(cols) - 1)) {
 multiplot(pdps[[1]], pdps[[2]], pdps[[3]], pdps[[4]], pdps[[5]], pdps[[6]],
           pdps[[7]], pdps[[8]], pdps[[9]], pdps[[10]], pdps[[11]], pdps[[12]],
           pdps[[13]], pdps[[14]], pdps[[15]], pdps[[16]], pdps[[17]], cols = 4)
+
+# ---------------------------------------------------------------------------- 
+#   Interpretation of logistic regression
+# ----------------------------------------------------------------------------
+
+cvd = select(rbind(sprint, accord), cvd)
+t_cvds = select(rbind(sprint, accord), t_cvds)
+treat = select(rbind(sprint, accord), INTENSIVE)$INTENSIVE
+
+add_interaction_terms = function(df, treat_var) {
+  n_cols = ncol(df)
+  col_name = paste("x", n_cols, sep = "")
+  df = mutate(df, !!col_name := treat_var)
+  for (i in 1:(ncol(df) - 1)) {
+    col_name = paste("x", i + n_cols, sep = "")
+    df = mutate(df, !!col_name := treat_var * df[,i][[1]])
+  }
+  return(df)
+}
+
+binarize_outcome = function(df, cvd, t_cvds, cens_time = 3 * 365.25) { 
+  outcomes = cvd & t_cvds < 3 * 365.25
+  cens_var = !cvd & t_cvds < 3 * 365.25
+  return(list(outcomes = outcomes[!cens_var], df = df[!cens_var,]))
+}
+
+data_normalized = as_tibble(scale(data))
+data_normalized = add_interaction_terms(data_normalized, treat)
+list[outcomes_binarized, data_binarized] = binarize_outcome(data_normalized, 
+                                                            cvd, t_cvds)
+
+logreg = glm(outcomes_binarized ~ ., data = data_binarized, family = "binomial")
+
+weights_df = tibble(col = c(cols, "treat", paste(cols, "interact", sep = "_")), 
+                    interact = c(rep(0, 18), rep(1, 17)), 
+                    sign = sign(coef(logreg)[2:length(coef(logreg))]),
+                    weight = abs(coef(logreg)[2:length(coef(logreg))]))
+
+weights_df %>% filter(interact == 1) %>% arrange(desc(weight))
+weights_df %>% filter(interact == 0) %>% arrange(desc(weight))
+
+ggplot(weights_df, aes(x = col, y = weight, fill = interact)) + 
+  geom_bar(stat = "identity", width = 0.75) + 
+  labs(x = "Relative weight", y = "Column") +
+  coord_flip() + theme_light()
 
