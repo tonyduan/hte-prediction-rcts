@@ -65,7 +65,6 @@ class LinearXLearner(object):
 
     def train(self, X, w, y, ipcw):
         _setup_r_environment(X, w, y, ipcw=ipcw)
-        breakpoint()
         ro.r("models = train_x_learner(X, w, y, ipcw)")
 
     def predict(self, X, w, estimate_propensities=True):
@@ -77,7 +76,7 @@ class LinearXLearner(object):
         return -self.pred_rr
 
 
-class LogisticRegressionRidge(object):
+class LogisticRegressionLasso(object):
     def __init__(self):
         self.glmnet_lib = importr("glmnet")
 
@@ -86,7 +85,7 @@ class LogisticRegressionRidge(object):
         X = _add_treatment_feature(X, w)
         _setup_r_environment(X, y=y, ipcw=ipcw)
         ro.r("model = cv.glmnet(as.matrix(X), y, weights = ipcw, " +
-             "family = 'binomial', alpha=0.0)")
+             "family = 'binomial', alpha=1.0)")
 
     def predict(self, X):
         X_1 = _get_interaction_terms(X, np.ones(len(X)))
@@ -97,8 +96,6 @@ class LogisticRegressionRidge(object):
         X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
         _setup_r_environment(X_0)
         py0 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
-        import pdb
-        pdb.set_trace()
         return py0 - py1
 
 
