@@ -100,8 +100,6 @@ class LogisticRegressionLasso(object):
 
 
 class LogisticRegression(object):
-#    def __init__(self):
-#        self.mass_lib = importr("MASS")
 
     def train(self, X, w, y, ipcw):
         X = _get_interaction_terms(X, w)
