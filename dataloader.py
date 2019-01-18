@@ -6,7 +6,6 @@ import numpy as np
 from lifelines import CoxPHFitter
 
 
-
 def calculate_ipcw(dataset, time_of_censoring):
     cph = CoxPHFitter()
     df = pd.DataFrame(dataset["X"][:, :-1])
@@ -23,7 +22,6 @@ def calculate_ipcw(dataset, time_of_censoring):
         weights[i] = 1 / sf.iloc[idx, i]
     return weights
 
-
 def load_data(dataset):
     if dataset == "sprint":
         df = pd.read_csv("data/sprint/sprint_cut.csv")
@@ -33,27 +31,20 @@ def load_data(dataset):
         df["diabetes"] = np.ones(len(df))
     else:
         raise ValueError("Unknown dataset: {}".format(dataset))
-
     y = np.array(df["cvd"]).astype(np.int32)
     t = np.array(df["t_cvds"]).astype(np.int32)
     w = np.array(df["INTENSIVE"]).astype(np.int32)
-
     del df["Unnamed: 0"]
     del df["cvd"]
     del df["t_cvds"]
     del df["INTENSIVE"]
-    cols = df.columns
-    X = df.astype(np.float32).values
-
-    dataset = {
-        "X": X,
+    return {
+        "X": df.astype(np.float32).values,
         "w": w,
         "y": y,
         "t": t,
-        "cols": cols,
+        "cols": df.columns,
     }
-
-    return dataset
 
 def bootstrap_dataset(dataset):
     """
@@ -72,7 +63,6 @@ def bootstrap_dataset(dataset):
         np.random.choice(untreated_nocvd, size=len(untreated_nocvd),
                          replace=True)))
     return idxs
-
 
 def cut_dataset_at_cens_time(dataset, cens_time):
     """
@@ -100,7 +90,6 @@ def cut_dataset_at_cens_time(dataset, cens_time):
         "y_cut": np.r_[train["y"][idxs], train["y"][~idxs]],
         "cens": np.r_[np.zeros(sum(idxs)), np.ones(sum(~idxs))]}
     return train_data, val_data
-
 
 def combine_datasets(sprint, accord):
     return {

@@ -3,7 +3,6 @@ from __future__ import division, print_function
 import numpy as np
 from frs import frs
 from tqdm import tqdm
-from models import CoxAICBaseline
 from evaluate import decision_value_rmst, get_range
 from dataloader import combine_datasets, load_data, cut_dataset_at_cens_time, \
                        bootstrap_dataset
@@ -24,7 +23,6 @@ def run_for_framingham(dataset):
                    smk=smk, dia=dia)
         risks[i] = risk.item()
     return risks
-
 
 def run_for_ascvd(dataset):
     risks = np.zeros_like(dataset["y"], dtype="float")
@@ -71,14 +69,6 @@ def run_for_ascvd(dataset):
                 np.dot(coeffs["female_black"], vec) - 86.61)
     return risks
 
-
-def run_for_cox(dataset, cens_time):
-    model = CoxAICBaseline()
-    model.train(dataset["X"], dataset["y"], dataset["t"])
-    pred_risk = model.predict(cens_time, dataset["X"])
-    return pred_risk
-
-
 def get_decision_value_rmst_naive(dataset, cens_time):
     pred_rr = np.zeros_like(dataset["y"], dtype=float)
     pred_rr[dataset["X"][:, -1] == 0] = 0.1
@@ -113,10 +103,8 @@ if __name__ == "__main__":
         print("Calculating baseline risks...")
         frs = run_for_framingham(all_data)
         ascvd = run_for_ascvd(all_data)
-        coxph = run_for_cox(all_data, args.cens_time)
         np.save(f"{base_dir}/framingham.npy", frs)
         np.save(f"{base_dir}/ascvd.npy", ascvd)
-        np.save(f"{base_dir}/coxph.npy", coxph)
 
     if args.calc_naive_rmst:
         print("Calculating naive strategy RMST...")
