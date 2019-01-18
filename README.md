@@ -23,6 +23,8 @@ stratified resampling of the dataset.
 
 #### Replication 
 
+The SPRINT and ACCORD-BP datasets need to be downloaded from [BioLINCC](https://biolincc.nhlbi.nih.gov/home/).
+
 In order to replicate results with the default 250 bootstrap samples, run:
 
 ```
