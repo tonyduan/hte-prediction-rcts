@@ -17,15 +17,12 @@ warnings.filterwarnings("ignore", category=RRuntimeWarning)
 def _get_interaction_terms(X, w):
     return np.hstack((X, w[:, np.newaxis] * X))
 
-
 def _add_treatment_feature(X, w):
     return np.hstack((X, w[:, np.newaxis]))
-
 
 def _as_df(X):
     data = {"x" + str(i): X[:, i] for i in range(X.shape[1])}
     return pd.DataFrame(data)
-
 
 def _setup_r_environment(X, w=None, y=None, t=None, ipcw=None):
     ro.globalenv["X"] = _as_df(X)
@@ -76,31 +73,7 @@ class LinearXLearner(object):
         return -self.pred_rr
 
 
-class LogisticRegressionLasso(object):
-    def __init__(self):
-        self.glmnet_lib = importr("glmnet")
-
-    def train(self, X, w, y, ipcw):
-        X = _get_interaction_terms(X, w)
-        X = _add_treatment_feature(X, w)
-        _setup_r_environment(X, y=y, ipcw=ipcw)
-        ro.r("model = cv.glmnet(as.matrix(X), y, weights = ipcw, " +
-             "family = 'binomial', alpha=1.0)")
-
-    def predict(self, X):
-        X_1 = _get_interaction_terms(X, np.ones(len(X)))
-        X_1 = _add_treatment_feature(X_1, np.ones(len(X)))
-        _setup_r_environment(X_1)
-        py1 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
-        X_0 = _get_interaction_terms(X, np.zeros(len(X)))
-        X_0 = _add_treatment_feature(X_0, np.zeros(len(X)))
-        _setup_r_environment(X_0)
-        py0 = ro.r("predict(model, newx = as.matrix(X), type='response')")[:,0]
-        return py0 - py1
-
-
 class LogisticRegression(object):
-
     def train(self, X, w, y, ipcw):
         X = _get_interaction_terms(X, w)
         X = _add_treatment_feature(X, w)
@@ -155,27 +128,6 @@ class CoxAIC(object):
         idx = min(np.searchsorted(times, cens_time), len(times) - 1)
         py0 = 1 - survfit_matrix[idx, :]
         return py0 - py1
-
-
-class CoxAICBaseline(object):
-    def __init__(self):
-        self.mass_lib = importr("MASS")
-        self.surv_lib = importr("survival")
-
-    def train(self, X, y, t):
-        _setup_r_environment(X, y=y, t=t)
-        model = ro.r("coxph(data=X, Surv(t, y) ~ .)")
-        self.clf = self.mass_lib.stepAIC(model, direction="backward",
-                                         trace=False)
-
-    def predict(self, cens_time, X):
-        df = _as_df(X)
-        survfit_model = self.surv_lib.survfit(self.clf, newdata=df,
-                                              se_fit=False)
-        survfit_matrix = np.asarray(survfit_model[5])
-        times = np.asarray(survfit_model[1])
-        idx = min(np.searchsorted(times, cens_time), len(times) - 1)
-        return 1 - survfit_matrix[idx, :]
 
 
 class CausalForest(object):

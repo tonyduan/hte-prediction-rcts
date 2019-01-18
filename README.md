@@ -28,8 +28,8 @@ In order to replicate results with the default 250 bootstrap samples, run:
 ```
 python3 baselines.py --dataset combined
 
-python3 run.py --model xlearner --dataset combined
-python3 run.py --model logreg --dataset combined
+python3 predict.py --model xlearner --dataset combined
+python3 predict.py --model logreg --dataset combined
 
 python3 evaluate.py --model xlearner --dataset combined
 python3 evaluate.py --model logreg --dataset combined
