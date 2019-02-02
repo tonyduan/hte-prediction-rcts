@@ -67,8 +67,8 @@ train_x_learner = function(X, W, Y, ipcw, save = TRUE) {
   mapping0 = get_mapping_to_full_dataset(X, W, 0)
 
   if (save) {
-    saveRDS(xf0, "models/xf0.rds")
-    saveRDS(xf1, "models/xf1.rds")
+    saveRDS(xf0, "ckpts/xf0.rds")
+    saveRDS(xf1, "ckpts/xf1.rds")
   }
 
   return(list(xf0 = xf0, xf1 = xf1, mapping0 = mapping0, mapping1 = mapping1))
