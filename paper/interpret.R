@@ -1,3 +1,8 @@
+# ==
+# Miscellaneous R code used for our paper. Run from the top-level directory.
+#
+# Contact: Tony Duan, tonyduan@cs.stanford.edu
+# ==
 library(tidyverse)
 library(gridExtra)
 library(gsubfn)

@@ -1,3 +1,11 @@
-Package: app
+Package: hte-prediction-rcts
+Title: Code to estimate heterogeneous treatment effects in RCTs.
+License: MIT
 Imports:
-    ranger
+    ranger,
+    pdp,
+    glmnet,
+    gsubfn,
+    survival,
+    xml2,
+    tidyverse

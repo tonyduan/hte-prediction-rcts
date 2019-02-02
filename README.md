@@ -1,6 +1,6 @@
 ### Predicting Individual Patient Treatment Effects from Randomized Trial Data
 
-Last update: January 2019.
+Last update: February 2019.
 
 ---
 
@@ -12,7 +12,7 @@ this can be modified by changing the `predict_oob` flag.
 
 #### Evaluation
 
-Our evaluation code lies in `evaluate.py`, with Python implementations of:
+Our evaluation code lies in `src/evaluate.py`, with Python implementations of:
 
 1. C-statistic-for-benefit [2]
 2. Decision value of restricted mean survival time (RMST) [3,4]
@@ -28,18 +28,27 @@ The SPRINT and ACCORD-BP datasets need to be downloaded from [BioLINCC](https://
 In order to replicate results with the default 250 bootstrap samples, run:
 
 ```
-python3 baselines.py --dataset combined
+python3 src/baselines.py --dataset combined
 
-python3 predict.py --model xlearner --dataset combined
-python3 predict.py --model logreg --dataset combined
+python3 src/predict.py --model xlearner --dataset combined
+python3 src/predict.py --model logreg --dataset combined
 
-python3 evaluate.py --model xlearner --dataset combined
-python3 evaluate.py --model logreg --dataset combined
+python3 src/evaluate.py --model xlearner --dataset combined
+python3 src/evaluate.py --model logreg --dataset combined
 
-python3 optimism.py --model logreg --dataset combined
+python3 src/optimism.py --model logreg --dataset combined
 ```
 
-Code to reproduce plots can be found in our notebook `plots.ipynb` and `interpret.R`.
+Code to reproduce plots can be found in our notebooks `paper/plots.ipynb` and `paper/interpret.R`.
+
+#### Dependencies
+
+Our code was run on Python 3.7 and R 3.5 (with heavy use of [rpy2](https://rpy2.readthedocs.io/en/version_2.8.x/) for interoperability). Using the [pip](https://pypi.org/project/pip/) and  [Jetpack](https://github.com/ankane/jetpack) package managers, dependences can be installed by running:
+
+```
+pip3 install -r requirements.txt
+jetpack install
+```
 
 #### References
 
