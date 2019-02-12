@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import numpy as np
 from frs import frs
 from tqdm import tqdm

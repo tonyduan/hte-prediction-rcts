@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import copy
 import pandas as pd
 import numpy as np
@@ -7,6 +5,9 @@ from lifelines import CoxPHFitter
 
 
 def calculate_ipcw(dataset, time_of_censoring):
+    """
+    Calculate IPCW weights by fitting a Cox model with all covariates.
+    """
     cph = CoxPHFitter()
     df = pd.DataFrame(dataset["X"][:, :-1])
     df["t"] = dataset["t"]
@@ -23,6 +24,9 @@ def calculate_ipcw(dataset, time_of_censoring):
     return weights
 
 def load_data(dataset):
+    """
+    Load SPRINT or ACCORD datasets.
+    """
     if dataset == "sprint":
         df = pd.read_csv("data/sprint/sprint_cut.csv")
         df["diabetes"] = np.zeros(len(df))
@@ -66,11 +70,11 @@ def bootstrap_dataset(dataset):
 
 def cut_dataset_at_cens_time(dataset, cens_time):
     """
-    Convert a dataset into binary at a censor time.
-    1. Dead < t : dead
-    2. Alive > t : alive
-    3. Alive < t : remove from dataset
-    4. Dead > t : alive
+    Convert a dataset into binary outcomes, with IPCW.
+    (1) Dead < t : dead
+    (2) Alive > t : alive
+    (3) Alive < t : remove from dataset
+    (4) Dead > t : alive
     """
     train = copy.deepcopy(dataset)
     idxs = ~((train["y"] == 0) & (train["t"] < cens_time))

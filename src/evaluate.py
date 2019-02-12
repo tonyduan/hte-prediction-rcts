@@ -1,5 +1,3 @@
-from __future__ import division, print_function
-
 import numpy as np
 import scipy as sp
 import scipy.stats
@@ -16,6 +14,9 @@ NO_BENEFIT_ASSIGNMENT = 11
 
 
 def get_range(scores):
+    """
+    Return the empirical 95% range of a statistic.
+    """
     lower = np.percentile(scores, 2.5)
     mean = np.mean(scores)
     upper = np.percentile(scores, 97.5)
@@ -47,13 +48,10 @@ def bucket_arr(pred_rr, y, w):
     """
     Evaluation of model bucketing.
     """
-    buckets = np.zeros_like(pred_rr)
-    buckets[pred_rr > 0] = BENEFIT_ASSIGNMENT
-    buckets[pred_rr <= 0] = NO_BENEFIT_ASSIGNMENT
-    arr_ben = np.mean(y[(buckets == BENEFIT_ASSIGNMENT) & (w == 0)]) - \
-              np.mean(y[(buckets == BENEFIT_ASSIGNMENT) & (w == 1)])
-    arr_noben = np.mean(y[(buckets == NO_BENEFIT_ASSIGNMENT) & (w == 0)]) - \
-                np.mean(y[(buckets == NO_BENEFIT_ASSIGNMENT) & (w == 1)])
+    arr_ben = np.mean(y[(pred_rr > 0) & (w == 0)]) - \
+              np.mean(y[(pred_rr > 0) & (w == 1)])
+    arr_noben = np.mean(y[(pred_rr <= 0) & (w == 0)]) - \
+                np.mean(y[(pred_rr <= 0) & (w == 1)])
     return arr_ben, arr_noben
 
 
