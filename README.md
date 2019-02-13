@@ -27,7 +27,7 @@ The SPRINT and ACCORD-BP datasets need to be downloaded from [BioLINCC](https://
 
 In order to replicate results with the default 250 bootstrap samples, run:
 
-```
+```shell
 python3 src/baselines.py --dataset combined
 
 python3 src/predict.py --model xlearner --dataset combined
@@ -45,7 +45,7 @@ Code to reproduce plots can be found in our notebooks `paper/plots.ipynb` and `p
 
 Our code was run on Python 3.7 and R 3.5 (with heavy use of [rpy2](https://rpy2.readthedocs.io/en/version_2.8.x/) for interoperability). Using the [pip](https://pypi.org/project/pip/) and  [Jetpack](https://github.com/ankane/jetpack) package managers, dependences can be installed by running:
 
-```
+```shell
 pip3 install -r requirements.txt
 jetpack install
 ```
