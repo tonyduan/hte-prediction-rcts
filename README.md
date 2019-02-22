@@ -6,7 +6,7 @@ Last update: February 2019.
 
 #### X-learner with random forests
 
-R code for the X-learner [1] with random forest base learners can be found in
+R code to train the X-learner [1] with random forest base learners can be found in
 `lib/xlearner-rf.R`. By default, it makes out-of-bag predictions, though 
 this can be modified by changing the `predict_oob` flag. 
 
