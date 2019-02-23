@@ -3,19 +3,15 @@ from argparse import ArgumentParser
 from collections import defaultdict
 from models import CoxAIC,LogisticRegression, LinearXLearner
 from dataloader import load_data, combine_datasets, bootstrap_dataset, \
-                       cut_dataset_at_cens_time
+                       cut_dataset
 from evaluate import c_statistic, decision_value_rmst
 from tqdm import tqdm
 
 
 def run_for_optimism(original_dataset, bootstrap_dataset, args):
-    """
-    Calculate optimism for a particular bootstrap run.
-    """
-    cut_data, all_data = cut_dataset_at_cens_time(bootstrap_dataset,
-                                                  args.cens_time)
-    cut_data_orig, all_data_orig = cut_dataset_at_cens_time(original_dataset,
-                                                            args.cens_time)
+
+    cut_data, all_data = cut_dataset(bootstrap_dataset, args.cens_time)
+    cut_data_orig, all_data_orig = cut_dataset(original_dataset, args.cens_time)
 
     if args.model == "cox":
         model = CoxAIC()
@@ -78,7 +74,6 @@ if __name__ == "__main__":
 
     stats = defaultdict(list)
     for _ in tqdm(range(args.bootstrap_samples)):
-
         idxs = bootstrap_dataset(dataset)
         bootstrap = {"X": dataset["X"][idxs],
                      "y": dataset["y"][idxs],

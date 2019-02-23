@@ -2,7 +2,7 @@ import numpy as np
 from frs import frs
 from tqdm import tqdm
 from evaluate import decision_value_rmst, get_range
-from dataloader import combine_datasets, load_data, cut_dataset_at_cens_time, \
+from dataloader import combine_datasets, load_data, cut_dataset, \
                        bootstrap_dataset
 from pathlib import Path
 from argparse import ArgumentParser
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         dataset = combine_datasets(load_data("sprint"), load_data("accord"))
     else:
         dataset = load_data(args.dataset)
-    bin_data, all_data = cut_dataset_at_cens_time(dataset, args.cens_time)
+    bin_data, all_data = cut_dataset(dataset, args.cens_time)
 
     base_dir = f"results/baselines/{args.dataset}"
     Path(base_dir).mkdir(parents=True, exist_ok=True)

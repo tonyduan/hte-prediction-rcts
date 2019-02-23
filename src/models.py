@@ -93,34 +93,27 @@ class LogisticRegression(object):
 
 class CoxAIC(object):
     def __init__(self):
-        self.mass_lib = importr("MASS")
-        self.surv_lib = importr("survival")
+        self.mass = importr("MASS")
+        self.surv = importr("survival")
 
     def train(self, X, w, y, t):
         X = _get_interaction_terms(X, w)
         X = _add_treatment_feature(X, w)
         _setup_r_environment(X, w, y, t)
         model = ro.r("coxph(data = X, Surv(t, y) ~ .)")
-        self.clf = self.mass_lib.stepAIC(model, direction="backward",
-                                         trace=False)
+        self.clf = self.mass.stepAIC(model, direction="backward", trace=False)
 
     def predict(self, cens_time, newdata):
-        w = np.ones(len(newdata))
-        X = _get_interaction_terms(newdata, w)
-        X = _add_treatment_feature(X, w)
-        df = _as_df(X)
-        survfit_model = self.surv_lib.survfit(self.clf, newdata=df,
-                                              se_fit=False)
+        X1 = _get_interaction_terms(newdata, np.ones(len(newdata)))
+        X1 = _add_treatment_feature(X1, np.ones(len(newdata)))
+        survfit_model = self.surv.survfit(self.clf, _as_df(X1), se_fit=False)
         survfit_matrix = np.asarray(survfit_model[5])
         times = np.asarray(survfit_model[1])
         idx = min(np.searchsorted(times, cens_time), len(times) - 1)
         py1 = 1 - survfit_matrix[idx, :]
-        w = np.zeros(len(newdata))
-        X = _get_interaction_terms(newdata, w)
-        X = _add_treatment_feature(X, w)
-        df = _as_df(X)
-        survfit_model = self.surv_lib.survfit(self.clf, newdata=df,
-                                              se_fit=False)
+        X0 = _get_interaction_terms(newdata, np.zeros(len(newdata)))
+        X0 = _add_treatment_feature(X0, np.zeros(len(newdata)))
+        survfit_model = self.surv.survfit(self.clf, _as_df(X0), se_fit=False)
         survfit_matrix = np.asarray(survfit_model[5])
         times = np.asarray(survfit_model[1])
         idx = min(np.searchsorted(times, cens_time), len(times) - 1)

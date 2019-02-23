@@ -3,14 +3,14 @@ from argparse import ArgumentParser
 from pathlib import Path
 from models import RFXLearner, CoxAIC, CausalForest, SurvRF, \
                    LogisticRegression, LinearXLearner
-from dataloader import load_data, combine_datasets, cut_dataset_at_cens_time
+from dataloader import load_data, combine_datasets, cut_dataset
 
 
 def run_with_model(dataset, args):
     """
     Runsing a particular choice of model.
     """
-    cut_data, all_data = cut_dataset_at_cens_time(dataset, args.cens_time)
+    cut_data, all_data = cut_dataset(dataset, args.cens_time)
 
     if args.model == "xlearner":
         model = RFXLearner()
@@ -69,7 +69,6 @@ if __name__ == "__main__":
     parser.add_argument("--cens-time", type=float, default=365.25 * 3)
     args = parser.parse_args()
 
-    print("=" * 79)
     print(f"== Running for: {args.dataset.upper()}")
 
     if args.dataset == "combined":

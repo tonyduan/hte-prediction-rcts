@@ -5,14 +5,11 @@ from lifelines import CoxPHFitter
 
 
 def calculate_ipcw(dataset, time_of_censoring):
-    """
-    Calculate IPCW weights by fitting a Cox model with all covariates.
-    """
     cph = CoxPHFitter()
     df = pd.DataFrame(dataset["X"][:, :-1])
     df["t"] = dataset["t"]
-    df["e"] = 1 - dataset["y"]
-    cph.fit(df, "t", "e")
+    df["c"] = 1 - dataset["y"]
+    cph.fit(df, "t", "c")
     sf = cph.predict_survival_function(dataset["X"][:, :-1])
     weights = np.zeros(len(dataset["X"]))
     for i in range(len(dataset["X"])):
@@ -68,7 +65,7 @@ def bootstrap_dataset(dataset):
                          replace=True)))
     return idxs
 
-def cut_dataset_at_cens_time(dataset, cens_time):
+def cut_dataset(dataset, cens_time):
     """
     Convert a dataset into binary outcomes, with IPCW.
     (1) Dead < t : dead
