@@ -21,6 +21,10 @@ Our evaluation code lies in `src/evaluate.py`, with Python implementations of:
 For all statistics, we calculate bootstrap confidence intervals through 
 stratified resampling of the dataset.
 
+#### Example Calculator
+
+To aid interpretability, we have made a calculator for predicting ARRs for internsive blood pressure therapy available online. [[Link]](https://tonyduan.shinyapps.io/intensive-bpt-calculator/)
+
 #### Replication 
 
 The SPRINT and ACCORD-BP datasets need to be downloaded from [BioLINCC](https://biolincc.nhlbi.nih.gov/home/).

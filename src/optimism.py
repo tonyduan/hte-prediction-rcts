@@ -9,7 +9,11 @@ from tqdm import tqdm
 
 
 def run_for_optimism(original_dataset, bootstrap_dataset, args):
-
+    """
+    Calculates difference between performance on a bootstrapped dataset (upon
+    which the model is trained) and the original dataset. Optimism is defined
+    as the mean difference over many bootstrap datasets.
+    """
     cut_data, all_data = cut_dataset(bootstrap_dataset, args.cens_time)
     cut_data_orig, all_data_orig = cut_dataset(original_dataset, args.cens_time)
 

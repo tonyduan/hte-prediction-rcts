@@ -9,10 +9,6 @@ from argparse import ArgumentParser
 from tqdm import tqdm
 
 
-BENEFIT_ASSIGNMENT = 10
-NO_BENEFIT_ASSIGNMENT = 11
-
-
 def get_range(scores):
     """
     Return the empirical 95% range of a statistic.
@@ -23,25 +19,22 @@ def get_range(scores):
     return lower, mean, upper
 
 
-def wald_test(buckets, y, w):
+def wald_test(pred_rr, y, w):
     """
     Return p-values for the survival rate in each of the buckets.
     """
     p_values = []
-    for assignment in (BENEFIT_ASSIGNMENT, NO_BENEFIT_ASSIGNMENT):
-        y_in_bucket = y[buckets == assignment]
-        w_in_bucket = w[buckets == assignment]
-        control = y_in_bucket[w_in_bucket == 0]
-        treatment = y_in_bucket[w_in_bucket == 1]
-        table = np.array([[np.sum(control), len(control) - np.sum(control)],
-                          [np.sum(treatment),
-                           len(treatment) - np.sum(treatment)]])
+    for selection in (pred_rr > 0, pred_rr <= 0):
+        ctrl = y[selection][w[selection] == 0]
+        treat = y[selection][w[selection] == 1]
+        table = np.array([[np.sum(ctrl), len(ctrl) - np.sum(ctrl)],
+                          [np.sum(treat), len(treat) - np.sum(treat)]])
         if np.any(table == 0):
             p_values.append(1)
             continue
         _, p, _, _ = sp.stats.chi2_contingency(table)
         p_values.append(p)
-    return p_values
+    return {1: p_values[0], -1: p_values[1]}
 
 
 def bucket_arr(pred_rr, y, w):
@@ -88,7 +81,7 @@ def decision_value_rmst(pred_rr, y, w, t, cens_time, min_km_samples=50):
     return (rmst_1 * np.sum(w == 1) + rmst_0 * np.sum(w == 0)) / len(y)
 
 
-def c_statistic(p, y, w):
+def c_statistic(pred_rr, y, w):
     """
     Return concordance-for-benefit, the proportion of all matched pairs with
     unequal observed benefit, in which the patient pair receiving greater
@@ -96,11 +89,10 @@ def c_statistic(p, y, w):
     """
     # ensure results are reproducible
     random.seed(123)
-
-    assert len(p) == len(w) == len(y)
+    assert len(pred_rr) == len(w) == len(y)
 
     # match all pairs on predicted benefit
-    tuples = list(zip(p, y, w))
+    tuples = list(zip(pred_rr, y, w))
     untreated = list(filter(lambda t: t[2] == 0, tuples))
     treated = list(filter(lambda t: t[2] == 1, tuples))
 
@@ -110,17 +102,14 @@ def c_statistic(p, y, w):
     if len(untreated) < len(treated):
         treated = random.sample(treated, len(untreated))
     assert len(untreated) == len(treated)
-
     untreated = sorted(untreated, key=lambda t: t[0])
     treated = sorted(treated, key=lambda t: t[0])
-
     obs_benefit_dict = {
         (0, 0): 0,
         (0, 1): -1,
         (1, 0): 1,
         (1, 1): 0,
     }
-
     # calculate observed and predicted benefit for each pair
     pairs = list(zip(untreated, treated))
     obs_benefit = [obs_benefit_dict[(u[1], t[1])] for (u, t) in pairs]
@@ -141,15 +130,15 @@ def c_statistic(p, y, w):
     return count / total
 
 
-def calibration(preds, y, w, t, cens_time, n_bins=5):
+def calibration(pred_rr, y, w, t, cens_time, n_bins=5):
     """
     Form a calibration plot of predicted risk reduction, return the
-    chi-square discrepancy, slope, intercept.
+    slope, intercept, predicted and observed ARRs.
     """
-    bins = np.percentile(preds, q=np.linspace(0, 100, n_bins + 1))
-    quantiles = np.digitize(preds, bins) - 1
+    bins = np.percentile(pred_rr, q=np.linspace(0, 100, n_bins + 1))
+    quantiles = np.digitize(pred_rr, bins) - 1
     quantiles[quantiles == n_bins] = n_bins - 1
-    pred_rr = [np.mean(preds[quantiles == i]) for i in range(n_bins)]
+    pred_rr = [np.mean(pred_rr[quantiles == i]) for i in range(n_bins)]
     obs_rr = []
     for i in range(n_bins):
         with_rx = np.logical_and(quantiles == i, w == 1)
@@ -165,8 +154,7 @@ def calibration(preds, y, w, t, cens_time, n_bins=5):
         obs_rr.append(no_rx - with_rx)
     pred_rr, obs_rr = np.array(pred_rr), np.array(obs_rr)
     slope, intercept = np.polyfit(pred_rr, obs_rr, 1)
-    rss = np.sum((obs_rr - pred_rr) ** 2)
-    return rss, slope, intercept, pred_rr, obs_rr
+    return slope, intercept, pred_rr, obs_rr
 
 
 if __name__ == "__main__":
@@ -218,23 +206,19 @@ if __name__ == "__main__":
         stats["rmst"].append(decision_value_rmst(pred_rr[idxs], y[idxs],
                                                  w[idxs], t[idxs],
                                                  args.cens_time))
-        rss, slope, intercept, _, _, = calibration(pred_rr[idxs], y[idxs],
-                                                   w[idxs], t[idxs],
-                                                   args.cens_time, n_bins=5)
+        slope, intercept, _, _, = calibration(pred_rr[idxs], y[idxs],
+                                              w[idxs], t[idxs],
+                                              args.cens_time, n_bins=5)
         stats["slope"].append(slope)
-        stats["rss"].append(rss)
         stats["intercept"].append(intercept)
 
     for k, v in stats.items():
         print(f"{k}: {[np.round(u, 2) for u in get_range(v)]}")
 
     # metrics for the dataset, non-bootstrapped
-    buckets = np.zeros_like(pred_rr[cens == 0])
-    buckets[pred_rr[cens == 0] > 0] = BENEFIT_ASSIGNMENT
-    buckets[pred_rr[cens == 0] <= 0] = NO_BENEFIT_ASSIGNMENT
-    pvals = wald_test(buckets, y_cut[cens == 0], w[cens == 0])
+    pvals = wald_test(pred_rr[cens == 0], y_cut[cens == 0], w[cens == 0])
 
-    np.save(f"{base_dir}/arrs.npy", {BENEFIT_ASSIGNMENT: stats["arr_ben"],
-                                     NO_BENEFIT_ASSIGNMENT: stats["arr_noben"]})
-    np.save(f"{base_dir}/buckets.npy", buckets)
+    # save bootstrapped per-bucket ARRs and wald test pvals
+    np.save(f"{base_dir}/arrs.npy", {1: stats["arr_ben"],
+                                     -1: stats["arr_noben"]})
     np.save(f"{base_dir}/pvals.npy", pvals)

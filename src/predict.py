@@ -8,7 +8,7 @@ from dataloader import load_data, combine_datasets, cut_dataset
 
 def run_with_model(dataset, args):
     """
-    Runsing a particular choice of model.
+    Running a particular choice of model, saves to /results folder.
     """
     cut_data, all_data = cut_dataset(dataset, args.cens_time)
 

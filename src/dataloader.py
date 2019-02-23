@@ -5,6 +5,10 @@ from lifelines import CoxPHFitter
 
 
 def calculate_ipcw(dataset, time_of_censoring):
+    """
+    Calculate inverse propensity of censorship weights for the dataset.
+    Uses a Cox model to model the censoring distribution.
+    """
     cph = CoxPHFitter()
     df = pd.DataFrame(dataset["X"][:, :-1])
     df["t"] = dataset["t"]
@@ -35,7 +39,6 @@ def load_data(dataset):
     y = np.array(df["cvd"]).astype(np.int32)
     t = np.array(df["t_cvds"]).astype(np.int32)
     w = np.array(df["INTENSIVE"]).astype(np.int32)
-    del df["Unnamed: 0"]
     del df["cvd"]
     del df["t_cvds"]
     del df["INTENSIVE"]
