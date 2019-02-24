@@ -23,7 +23,7 @@ stratified resampling of the dataset.
 
 #### Example Calculator
 
-To aid interpretability, we have made a calculator for predicting ARRs for internsive blood pressure therapy available online. [[Link]](https://tonyduan.shinyapps.io/intensive-bpt-calculator/)
+To aid interpretability, we have made a demo calculator for predicting intensive blood pressure therapy ARRs. [[Link]](https://tonyduan.shinyapps.io/intensive-bpt-calculator/)
 
 #### Replication 
 
