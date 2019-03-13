@@ -6,7 +6,7 @@ Last update: February 2019.
 
 Code to accompany our paper:
 
-[Clinical value of predicting individual treatment effects for intensive blood pressure therapy](https://www.ahajournals.org/doi/10.1161/CIRCOUTCOMES.118.005010).
+[Clinical value of predicting individual treatment effects for intensive blood pressure therapy](https://www.ahajournals.org/doi/10.1161/CIRCOUTCOMES.118.005010).<br/>
 Tony Duan, Pranav Rajpurkar, Dillon Laird, Andrew Y. Ng, Sanjay Basu.
 _Circulation: CQO_, 2019
 
