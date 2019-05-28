@@ -58,25 +58,25 @@ def decision_value_rmst(pred_rr, y, w, t, cens_time, min_km_samples=50):
         kmf_treat = KaplanMeierFitter()
         kmf_treat.fit(t[treat], y[treat])
         surv = kmf_treat.survival_function_.reset_index()
-        idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+        idx = np.searchsorted(surv["timeline"], v=cens_time)
         rmst_1 = np.trapz(y=surv["KM_estimate"][:idx], x=surv["timeline"][:idx])
         return rmst_1
     if np.sum(treat) < min_km_samples:
         kmf_control = KaplanMeierFitter()
         kmf_control.fit(t[control], y[control])
         surv = kmf_control.survival_function_.reset_index()
-        idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+        idx = np.searchsorted(surv["timeline"], v=cens_time)
         rmst_0 = np.trapz(y=surv["KM_estimate"][:idx], x=surv["timeline"][:idx])
         return rmst_0
     kmf_treat = KaplanMeierFitter()
     kmf_treat.fit(t[treat], y[treat])
     surv = kmf_treat.survival_function_.reset_index()
-    idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+    idx = np.searchsorted(surv["timeline"], v=cens_time)
     rmst_1 = np.trapz(y=surv["KM_estimate"][:idx], x=surv["timeline"][:idx])
     kmf_control = KaplanMeierFitter()
     kmf_control.fit(t[control], y[control])
     surv = kmf_control.survival_function_.reset_index()
-    idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+    idx = np.searchsorted(surv["timeline"], v=cens_time)
     rmst_0 = np.trapz(y=surv["KM_estimate"][:idx], x=surv["timeline"][:idx])
     return (rmst_1 * np.sum(w == 1) + rmst_0 * np.sum(w == 0)) / len(y)
 
@@ -146,10 +146,10 @@ def calibration(pred_rr, y, w, t, cens_time, n_bins=5):
         kmf_with_rx = KaplanMeierFitter().fit(t[with_rx], y[with_rx])
         kmf_no_rx = KaplanMeierFitter().fit(t[no_rx], y[no_rx])
         surv = kmf_with_rx.survival_function_.reset_index()
-        idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+        idx = np.searchsorted(surv["timeline"], v=cens_time)
         with_rx = 1 - surv["KM_estimate"][min(idx, len(surv) - 1)]
         surv = kmf_no_rx.survival_function_.reset_index()
-        idx = np.searchsorted(surv["timeline"], v=cens_time)[0]
+        idx = np.searchsorted(surv["timeline"], v=cens_time)
         no_rx = 1 - surv["KM_estimate"][min(idx, len(surv) - 1)]
         obs_rr.append(no_rx - with_rx)
     pred_rr, obs_rr = np.array(pred_rr), np.array(obs_rr)
