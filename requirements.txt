@@ -1,5 +1,5 @@
 cycler==0.10.0
-Jinja2==2.10
+Jinja2==2.11.3
 kiwisolver==1.0.1
 lifelines==0.17.0
 MarkupSafe==1.1.0
