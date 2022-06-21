@@ -4,7 +4,7 @@ kiwisolver==1.0.1
 lifelines==0.17.0
 MarkupSafe==1.1.0
 matplotlib==2.2.3
-numpy==1.16.0
+numpy==1.22.0
 pandas==0.23.4
 pyparsing==2.3.1
 python-dateutil==2.7.5
